@@ -53,9 +53,6 @@ contract CommonE2EBase is Test {
     uint256 _limitAdjustedDebt = LIQUIDATION_QUANTITY * 1e18 / _fuzz.accumulatedRate / LIQUIDATION_PENALTY;
     vm.assume(_limitAdjustedDebt < 10_000_000_000e18); // safe assumption
 
-    // max possible value of limitAdjustedDebt
-    uint256 _maxLimitAdjustedDebt = LIQUIDATION_QUANTITY * 1e18 / _fuzz.accumulatedRate / MIN_PENALTY;
-
     // dusty
     _fuzz.safeDebt =
       bound(_fuzz.safeDebt, _limitAdjustedDebt + 1, _limitAdjustedDebt + _fuzz.debtFloor / _fuzz.accumulatedRate);
