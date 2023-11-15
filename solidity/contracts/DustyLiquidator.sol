@@ -1,19 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.19;
 
+import {ILiquidationEngine} from 'interfaces/ILiquidationEngine.sol';
+import {ILiquidationEngineOverlay} from 'interfaces/ILiquidationEngineOverlay.sol';
+
 import {ReentrancyGuard} from 'isolmate/utils/ReentrancyGuard.sol';
-
-interface ILiquidationEngine {
-  function liquidateSAFE(bytes32 _cType, address _safe) external returns (uint256 _auctionId);
-  function collateralTypes(bytes32 _cType)
-    external
-    view
-    returns (address _collateralAuctionHouse, uint256 _liquidationPenalty, uint256 _liquidationQuantity);
-}
-
-interface ILiquidationEngineOverlay {
-  function modifyParameters(bytes32 _cType, bytes32 _param, uint256 _data) external;
-}
 
 contract DustyLiquidator is ReentrancyGuard {
   ILiquidationEngine constant LIQUIDATION_ENGINE = ILiquidationEngine(0x4fFbAA89d648079Faafc7852dE49EA1dc92f9976);
@@ -26,9 +17,10 @@ contract DustyLiquidator is ReentrancyGuard {
   uint256 public MAX_LIQUIDATION_PENALTY = 1_150_000_000_000_000_000;
   uint256 public MIN_LIQUIDATION_PENALTY = 1_090_000_000_000_000_000;
 
-  event DustySafeLiquidationAttempt(address _safe, bool _liquidated);
+  event DustySafeLiquidation(address _safe, uint256 _penalty);
 
   error NotDusty();
+  error NotSuccessful();
 
   function liquidateDustySafe(address _dustySafe) external nonReentrant {
     // Verifies that the SAFE is under the dusty liquidation position
@@ -45,7 +37,7 @@ contract DustyLiquidator is ReentrancyGuard {
       // Loads the calldata to liquidate the SAFE
       bytes memory _liquidateCalldata =
         abi.encodeWithSelector(ILiquidationEngine.liquidateSAFE.selector, ETH_A, _dustySafe);
-      
+
       // Loads the result of the liquidation
       bool _success;
 
@@ -54,6 +46,7 @@ contract DustyLiquidator is ReentrancyGuard {
         LIQUIDATION_ENGINE_OVERLAY.modifyParameters(ETH_A, 'liquidationPenalty', MIN_LIQUIDATION_PENALTY);
 
         (_success,) = address(LIQUIDATION_ENGINE).call(_liquidateCalldata);
+        if (_success) emit DustySafeLiquidation(_dustySafe, MIN_LIQUIDATION_PENALTY);
       }
 
       // If the position was already liquidated, we don't need to run this block
@@ -61,10 +54,10 @@ contract DustyLiquidator is ReentrancyGuard {
         LIQUIDATION_ENGINE_OVERLAY.modifyParameters(ETH_A, 'liquidationPenalty', MAX_LIQUIDATION_PENALTY);
 
         (_success,) = address(LIQUIDATION_ENGINE).call(_liquidateCalldata);
+        if (_success) emit DustySafeLiquidation(_dustySafe, MAX_LIQUIDATION_PENALTY);
       }
 
-      // Emits an event with the result of the liquidation
-      emit DustySafeLiquidationAttempt(_dustySafe, _success);
+      if (!_success) revert NotSuccessful();
 
       // Returns the penalty to the original value
       LIQUIDATION_ENGINE_OVERLAY.modifyParameters(ETH_A, 'liquidationPenalty', _liquidationPenalty);
