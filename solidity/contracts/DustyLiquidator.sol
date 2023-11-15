@@ -7,15 +7,15 @@ import {ILiquidationEngineOverlay} from 'interfaces/ILiquidationEngineOverlay.so
 import {ReentrancyGuard} from 'isolmate/utils/ReentrancyGuard.sol';
 
 contract DustyLiquidator is ReentrancyGuard {
-  ILiquidationEngine constant LIQUIDATION_ENGINE = ILiquidationEngine(0x4fFbAA89d648079Faafc7852dE49EA1dc92f9976);
-  ILiquidationEngineOverlay constant LIQUIDATION_ENGINE_OVERLAY =
+  ILiquidationEngine public constant LIQUIDATION_ENGINE = ILiquidationEngine(0x4fFbAA89d648079Faafc7852dE49EA1dc92f9976);
+  ILiquidationEngineOverlay public constant LIQUIDATION_ENGINE_OVERLAY =
     ILiquidationEngineOverlay(0xa10C1e933C21315DfcaA8C8eDeDD032BD9b0Bccf);
 
-  bytes32 constant ETH_A = 0x4554482d41000000000000000000000000000000000000000000000000000000;
-  bytes32 constant DUSTY_LIQUIDATION_ERROR = keccak256(abi.encodePacked('LiquidationEngine/dusty-safe'));
+  bytes32 public constant ETH_A = 0x4554482d41000000000000000000000000000000000000000000000000000000;
+  bytes32 public constant DUSTY_LIQUIDATION_ERROR = keccak256(abi.encodePacked('LiquidationEngine/dusty-safe'));
 
-  uint256 public MAX_LIQUIDATION_PENALTY = 1_150_000_000_000_000_000;
-  uint256 public MIN_LIQUIDATION_PENALTY = 1_090_000_000_000_000_000;
+  uint256 public constant MAX_LIQUIDATION_PENALTY = 1_150_000_000_000_000_000;
+  uint256 public constant MIN_LIQUIDATION_PENALTY = 1_090_000_000_000_000_000;
 
   event DustySafeLiquidation(address _safe, uint256 _penalty);
 

@@ -6,22 +6,25 @@ interface ISAFEEngine {
     external
     view
     returns (
-      uint256 debtAmount,
-      uint256 accumulatedRate,
-      uint256 safetyPrice,
-      uint256 debtCeiling,
-      uint256 debtFloor,
-      uint256 liquidationPrice
+      uint256 _debtAmount,
+      uint256 _accumulatedRate,
+      uint256 _safetyPrice,
+      uint256 _debtCeiling,
+      uint256 _debtFloor,
+      uint256 _liquidationPrice
     );
 
-  function safes(bytes32 _cType, address _safe) external view returns (uint256 lockedCollateral, uint256 generatedDebt);
+  function safes(
+    bytes32 _cType,
+    address _safe
+  ) external view returns (uint256 _lockedCollateral, uint256 _generatedDebt);
 
   function confiscateSAFECollateralAndDebt(
-    bytes32 collateralType,
-    address safe,
-    address collateralCounterparty,
-    address debtCounterparty,
-    int256 deltaCollateral,
-    int256 deltaDebt
+    bytes32 _collateralType,
+    address _safe,
+    address _collateralCounterparty,
+    address _debtCounterparty,
+    int256 _deltaCollateral,
+    int256 _deltaDebt
   ) external;
 }

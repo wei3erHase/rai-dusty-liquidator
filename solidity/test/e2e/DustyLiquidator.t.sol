@@ -7,28 +7,28 @@ import {ILiquidationEngineOverlay} from 'interfaces/ILiquidationEngineOverlay.so
 
 import {DustyLiquidator} from 'contracts/DustyLiquidator.sol';
 
-import 'forge-std/Test.sol';
+import {Test, stdStorage, StdStorage} from 'forge-std/Test.sol';
 
 contract CommonE2EBase is Test {
   using stdStorage for StdStorage;
 
-  uint256 internal constant _FORK_BLOCK = 18_569_420;
+  uint256 public constant FORK_BLOCK = 18_569_420;
 
-  address constant SAFE_ENGINE = 0xCC88a9d330da1133Df3A7bD823B95e52511A6962;
-  address constant LIQUIDATION_ENGINE = 0x4fFbAA89d648079Faafc7852dE49EA1dc92f9976;
-  address constant LIQUIDATION_ENGINE_OVERLAY = 0xa10C1e933C21315DfcaA8C8eDeDD032BD9b0Bccf;
-  bytes32 constant ETH_A = 0x4554482d41000000000000000000000000000000000000000000000000000000;
+  address public constant SAFE_ENGINE = 0xCC88a9d330da1133Df3A7bD823B95e52511A6962;
+  address public constant LIQUIDATION_ENGINE = 0x4fFbAA89d648079Faafc7852dE49EA1dc92f9976;
+  address public constant LIQUIDATION_ENGINE_OVERLAY = 0xa10C1e933C21315DfcaA8C8eDeDD032BD9b0Bccf;
+  bytes32 public constant ETH_A = 0x4554482d41000000000000000000000000000000000000000000000000000000;
 
-  uint256 constant LIQUIDATION_QUANTITY = 90_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000;
-  uint256 constant LIQUIDATION_PENALTY = 1_100_000_000_000_000_000;
-  uint256 constant MIN_PENALTY = 1_090_000_000_000_000_000;
-  uint256 constant MAX_PENALTY = 1_150_000_000_000_000_000;
+  uint256 public constant LIQUIDATION_QUANTITY = 90_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000;
+  uint256 public constant LIQUIDATION_PENALTY = 1_100_000_000_000_000_000;
+  uint256 public constant MIN_PENALTY = 1_090_000_000_000_000_000;
+  uint256 public constant MAX_PENALTY = 1_150_000_000_000_000_000;
 
-  uint256 constant SAFE_COLLATERAL = 1e18;
+  uint256 public constant SAFE_COLLATERAL = 1e18;
 
-  address dustySafe = address(420);
+  address public dustySafe = address(420);
 
-  DustyLiquidator dustyLiquidator;
+  DustyLiquidator public dustyLiquidator;
 
   struct Scenario {
     uint256 accumulatedRate;
@@ -37,11 +37,11 @@ contract CommonE2EBase is Test {
   }
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), _FORK_BLOCK);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), FORK_BLOCK);
     dustyLiquidator = new DustyLiquidator();
   }
 
-  Scenario _fuzzed;
+  Scenario internal _fuzzed;
 
   event DustySafeLiquidation(address _safe, uint256 _penalty);
 
@@ -139,7 +139,7 @@ contract CommonE2EBase is Test {
     dustyLiquidator.liquidateDustySafe(dustySafe);
   }
 
-  function _whollyLiquidatable(uint256 _accumulatedRate, uint256 _safeDebt) internal pure returns (bool) {
+  function _whollyLiquidatable(uint256 _accumulatedRate, uint256 _safeDebt) internal pure returns (bool _liquidatable) {
     return _safeDebt < LIQUIDATION_QUANTITY * 1e18 / _accumulatedRate / MIN_PENALTY;
   }
 
@@ -147,11 +147,11 @@ contract CommonE2EBase is Test {
     uint256 _accumulatedRate,
     uint256 _debtFloor,
     uint256 _safeDebt
-  ) internal pure returns (bool) {
+  ) internal pure returns (bool _liquidatable) {
     return _debtFloor < _safeDebt * _accumulatedRate - LIQUIDATION_QUANTITY * 1e18 / MAX_PENALTY;
   }
 
-  function _partiallyLiquidatableSimplified(uint256 _debtFloor) internal pure returns (bool) {
+  function _partiallyLiquidatableSimplified(uint256 _debtFloor) internal pure returns (bool _liquidatable) {
     return _debtFloor < LIQUIDATION_QUANTITY * 1e18 / MIN_PENALTY - LIQUIDATION_QUANTITY * 1e18 / MAX_PENALTY;
   }
 }
