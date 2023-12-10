@@ -44,7 +44,9 @@ contract DustyLiquidator is ReentrancyGuard {
       revert NotDusty();
     } catch Error(string memory _error) {
       // If the fails with anything other than dusty-safe the transaction is reverted
-      if (keccak256(abi.encodePacked(_error)) != DUSTY_LIQUIDATION_ERROR) revert NotDusty();
+      if (keccak256(abi.encodePacked(_error)) != DUSTY_LIQUIDATION_ERROR) {
+        revert NotDusty();
+      }
 
       // Reads current liquidation penalty to restore it later
       (, uint256 _liquidationPenalty,) = LIQUIDATION_ENGINE.collateralTypes(ETH_A);
@@ -61,7 +63,9 @@ contract DustyLiquidator is ReentrancyGuard {
         LIQUIDATION_ENGINE_OVERLAY.modifyParameters(ETH_A, 'liquidationPenalty', MIN_LIQUIDATION_PENALTY);
 
         (_success,) = address(LIQUIDATION_ENGINE).call(_liquidateCalldata);
-        if (_success) emit DustySafeLiquidation(_dustySafe, MIN_LIQUIDATION_PENALTY);
+        if (_success) {
+          emit DustySafeLiquidation(_dustySafe, MIN_LIQUIDATION_PENALTY);
+        }
       }
 
       // If the position was already liquidated, we don't need to run this block
@@ -69,7 +73,9 @@ contract DustyLiquidator is ReentrancyGuard {
         LIQUIDATION_ENGINE_OVERLAY.modifyParameters(ETH_A, 'liquidationPenalty', MAX_LIQUIDATION_PENALTY);
 
         (_success,) = address(LIQUIDATION_ENGINE).call(_liquidateCalldata);
-        if (_success) emit DustySafeLiquidation(_dustySafe, MAX_LIQUIDATION_PENALTY);
+        if (_success) {
+          emit DustySafeLiquidation(_dustySafe, MAX_LIQUIDATION_PENALTY);
+        }
       }
 
       if (!_success) revert NotSuccessful();

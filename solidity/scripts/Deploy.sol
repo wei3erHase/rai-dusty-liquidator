@@ -17,3 +17,9 @@ contract DeployMainnet is Deploy {
     _deploy();
   }
 }
+
+contract DeployGoerli is Deploy {
+  function run() external {
+    _deploy();
+  }
+}
