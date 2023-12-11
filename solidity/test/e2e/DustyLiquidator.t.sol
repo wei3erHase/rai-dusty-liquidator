@@ -9,7 +9,7 @@ import {DustyLiquidator} from 'contracts/DustyLiquidator.sol';
 
 import {Test, stdStorage, StdStorage} from 'forge-std/Test.sol';
 
-contract CommonE2EBase is Test {
+contract E2ETest is Test {
   using stdStorage for StdStorage;
 
   uint256 public constant FORK_BLOCK = 18_569_420;
